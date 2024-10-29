@@ -26,7 +26,20 @@ namespace cop4530 {
                     // Note that print() prints elements in the opposite order of the Stack (that is, the oldest element should be printed first)
 
             private:
+                struct Node {
+					T data;
+					Node *prev;
+					Node *next;
 
+					Node(const T & d = T{}, Node *p = nullptr, Node *n = nullptr) 
+						: data{d}, prev{p}, next{n} {}
+					Node(T && d, Node *p = nullptr, Node *n = nullptr)
+						: data{std::move(d)}, prev{p}, next{n} {}
+				};
+
+                Node *head;
+                Node *tail;
+                int stackSize;
         };  
 
     //  invokes the print() method to print the Stack<T>a in the specified ostream
