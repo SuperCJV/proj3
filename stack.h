@@ -2,21 +2,24 @@
 #define STACK_H
 
 #include <iostream>
-
+#include <vector>
 namespace cop4530 {
     template <typename T>
         class Stack {
             public:
+                // Constructors and Destructor
                 Stack();    // zero-argument constructor
                 ~Stack();   // destructor
-                Stack(const Stack<T> &);    // copy constructor
-                Stack(Stack<T>&&);  //move constructor
-                Stack<T>& operator= (const Stack <T>&); //copy assignment operator=
-                Stack<T> & operator= (Stacl<T>&&);  //move assignment operator=
+                Stack(const Stack<T>& rhs);    // copy constructor
+                Stack(Stack<T>&& rhs);  //move constructor
+                Stack<T>& operator= (const Stack <T>& rhs); //copy assignment operator=
+                Stack<T> & operator= (Stack<T>&& rhs);  //move assignment operator=
+                
+                // Member Functions
                 bool empty() const; //returns true if Stack contains no elements, false otherwise
                 void clear();   //delete all elements from the stack
                 void push(const T& x);  //adds x to the Stack (copy version)
-                void push(T && x);  //adds x to the Stack (move version)
+                void push(T&& x);  //adds x to the Stack (move version)
                 void pop(); // removes and discards the most erecently added element of the Stack
                 T& top();   // mutator that returns a reference to the most recently added element of the Stack
                 const T& top() const;   //accessor that returns the most recently added element of the Stack
@@ -36,29 +39,27 @@ namespace cop4530 {
 					Node(T && d, Node *p = nullptr, Node *n = nullptr)
 						: data{std::move(d)}, prev{p}, next{n} {}
 				};
+                int stackSize; // number of elements
+				Node *head; // head node
 
-                Node *head;
-                Node *tail;
-                int stackSize;
+                // Private helper function
+                void copyFrom(const Stack<T>& rhs); // Deep copy other stack to current one
         };  
 
-    //  invokes the print() method to print the Stack<T>a in the specified ostream
     template <typename T>
-        std::ostream& operator<<(std::ostream& os, const Stack<T>& a);
+        std::ostream& operator<<(std::ostream& os, const Stack<T>& a);  // invokes the print() method to print the Stack<T>a in the specified ostream
     
-    // returns true if the two compared Stacks have the same elements, in the same order
     template <typename T>
-        bool operator== (const Stack<T>&, const Stack <T>&);
+        bool operator== (const Stack<T>&, const Stack <T>&);    // returns true if the two compared Stacks have the same elements, in the same order
 
-    // opposite of operator==()
     template <typename T>
-        bool operator!= (const Stack<T>&, const Stack<T>&);
+        bool operator!= (const Stack<T>&, const Stack<T>&); // opposite of operator==()
 
-    // returns true if every element in Stafck a is smaller than or equal to the corresponding element of STack b
-    // i.e. if repeatedly involing top() and pop() on both a and b, we will generate a sequence of elements a_i from a and b_i from b...
-    // ... and for every i, a_i <= b_i, until a is empty
     template <typename T>
-        bool operator<= (const Stack<T>& a, const Stack <T>& b);
+        bool operator<= (const Stack<T>& a, const Stack <T>& b);    
+        // returns true if every element in Stafck a is smaller than or equal to the corresponding element of Stack b
+        // i.e. if repeatedly involing top() and pop() on both a and b, we will generate a sequence of elements a_i from a and b_i from b...
+        // ... and for every i, a_i <= b_i, until a is empty
     
     #include "stack.hpp"
 }
