@@ -1,80 +1,55 @@
 #ifndef STACK_HPP
 #define STACK_HPP
+// Prevents multiple inclusions of the file during compilation
 
 #include <iostream>
 #include <vector>
 #include "stack.h"
 
+using namespace std;
+
 //----------------------------------------
 // ====== Constructors & Destructors =====
 //----------------------------------------
 
-//Stack():
+// Default Constructor
+// Uses default constructor to initialize empty vector
 template<typename T>
-    Stack<T>::Stack()
-    {
-        // Initialize stack
-        stackSize = 0;
-        head = nullptr;
-    }
+    Stack<T>::Stack() = default;
 
-//~Stack ():
+// Deconstructor
+// Automatically deallocates the vector 
 template<typename T>
-    Stack<T>::~Stack()
-    {
-        clear();
-        delete head;
-    }
+    Stack<T>::~Stack() = default;
 
-//Stack (const Stack<T>&):
+// Copy Constructor
+// Creates a new stack with data_ initialized as a copy of rhs.data
 template<typename T>
-    Stack<T>::Stack(const Stack<T> &rhs)
-    {
-        // Initialize stack
-        stackSize = 0;
-        head = nullptr;
+    Stack<T>::Stack(const Stack<T>& rhs) : data_(rhs.data_) {}
 
-        // Deep copy other stack to this one
-        copyFrom(rhs);
-    }
-
-//Stack(Stack<T> &&):
+// Move Constructor
+// Initializes data_ by moving rhs.data_
 template<typename T>
-    Stack<T>::Stack(Stack<T>&& rhs)
-    {
-        // head and stackSize points to other head and stackSize
-        head = rhs.head;
-        stackSize = rhs.stackSize;
+    Stack<T>::Stack(Stack<T>&& rhs) : data_(move(rhs.data_)) {}
 
-        // Re-initialize other stack to empty state
-        rhs.head = nullptr;
-        rhs.stackSize = 0;
-    }
-
-//Stack<T>& operator= (const Stack <T>&):
+// Copy Assignment operator
+// Assigns rhs.data_ to data_ 
 template<typename T>
     Stack<T>& Stack<T>::operator= (const Stack <T>& rhs)
     {
-        if(this != &rhs){
-            clear();
-            copyFrom(rhs);
+        if(this != &rhs){   // Performs deep copy if rhs is not the same object as this
+            data_ = rhs.data_;
         }
         return *this;
     }
 
-//Stack<T> & operator=(Stack<T> &&):
+// Move Constructor
+// Transfers ownership of rhs.data
 template<typename T>
-    Stack<T>& Stack<T>::operator=(Stack<T> && rhs)
+    Stack<T>& Stack<T>::operator=(Stack<T>&& rhs)
     {
         if(this != &rhs){
-            clear();
-            // head and stackSize points to other head and stackSize
-            head = rhs.head;
-            stackSize = rhs.stackSize;
-
-            // Re-initialize other stack to empty state
-            rhs.head = nullptr;
-            rhs.stackSize = 0;
+            data_ = move(rhs.data_);
         }
     }
 
@@ -82,176 +57,117 @@ template<typename T>
 // =========== Member functions ==========
 //----------------------------------------
 
-//bool empty() const:
+// Checks is stack is empty
 template<typename T>
     bool Stack<T>::empty() const{
-        return stackSize==0;
+        return data_.empty();
     }
 
-//void clear():
+// Clears stack by clearing data_
 template<typename T>
     void Stack<T>::clear()
     {
-        while(!empty()){
-            pop();
-        }
+        data_.clear();
     }
 
-//void push(const T& x):
+// Adds x to stack by appending it to the end of data_
 template<typename T>
     void Stack<T>::push(const T& x)
     {
-        head = new Node(x, head);
-        ++stackSize;
+        data_.push_back(x);
     }
 
-//void push(T && x):
+// Adds x to data_ by moving to avoid unnecessary copying
 template<typename T>
     void Stack<T>::push(T && x)
     {
-        head = new Node(std::move(x), head);
-        ++stackSize;
+        data_.push_back(move(x));
     }
 
-//void pop():
+// Removes the last element of data_ if the stack is not empty
 template<typename T>
     void Stack<T>::pop()
     {
         if(!empty()){
-            Node* temp = tail;
-            head = head->next;
-            delete temp;
-            --stackSize;
+            data_.pop_back();
         }
     }
 
-//T& top():
+// Returns a reference to the last element of data_ if it's not empty
 template<typename T>
     T& Stack<T>::top()
     {
-        if(!empty){
-            return head->data;
+        if(!empty()){
+            return data_.back();
         }
     }
 
-//const T& top() const:
+// Returns a const reference (meaning the returned value will not be modified) to the last element of data_ if it's not empty
 template<typename T>
     const T& Stack<T>::top() const
     {
         if(!empty()){
-            return head->data;
+            return data_.back();
         }
     }
 
-//int size() const:
+// Returns the number of elements in the stack
 template<typename T>
     int Stack<T>::size() const
     {
-        return stackSize;
+        return data_.size();
     }
 
-//void print(std::ostream& os, char ofc = ' ') const:
+// Prints elements from top to bottom
 template<typename T>
-    void Stack<T>::print(std::ostream& os, char ofc) const
-    {
-        // Create a temporary vector
-        Node* current = head;
-        T* temp_vec = new T[stackSize];
-        int i = stackSize - 1;
-
-        // Shallow copy current stack to temporary vector to print in opposite order
-        while (current) {
-            temp_vec[i--] = current->data;
-            current = current->next;
+    void Stack<T>::print(std::ostream& os, char ofc) const {
+        for (auto elem = data_.rbegin(); elem != data_.rend(); ++elem) {    // itereates from rbegin() to rend()
+            os << *elem;
+            if (elem + 1 != data_.rend()){
+                os << ofc;  // Adds ofc between elements
+            }
         }
-        
-        // Print the temporary vector
-        for (i = 0; i < stackSize; ++i) {
-            os << temp_vec[i];
-            if (i < stackSize - 1){
-                os << ofc;
-            } 
-        }
-
-        // Delete temporary vector
-        delete[] temp_vec;
     }
-
-//----------------------------------------
-// ====== Private helper functions =======
-//----------------------------------------
-
-//copyFrom(const Stack<T>& rhs)
-template <typename T>
-void Stack<T>::copyFrom(const Stack<T>& rhs) {
-        // Check if other stack is empty
-        if(rhs.empty()){
-            return;
-        }
-
-        // Deep copy head
-        Node* current = rhs.head;
-        Node* tail = nullptr;
-        head = new Node(current->data);
-        tail = head;
-        current = current->next;
-        ++stackSize;
-
-        // Iterate through other stack and deep copy into new stack
-        while (current) {
-            tail->next = new Node(current->data);
-            tail = tail->next;
-            current = current->next;
-            ++stackSize;
-        }
-}
 
 //----------------------------------------
 // ===== Non-Member global functions =====
 //----------------------------------------
-//std::ostream& operator<< (std::ostream& os, const Stack<T>& a)
-template <typename T>
-std::ostream& operator<<(std::ostream& os, const Stack<T>& stack) {
-    stack.print(os);
-    return os;
-}
 
-//bool operator== (const Stack<T>&, const Stack <T>&)
+// Outputs teh stack to os by calling print()
 template <typename T>
-bool operator==(const Stack<T>& a, const Stack<T>& b) {
-    if (a.size() != b.size()) {
-        return false;
+    std::ostream& operator<< (std::ostream& os, const Stack<T>& a) {
+        a.print(os);
+        return os;
     }
-    auto *node_a = a.head, *node_b = b.head;
-    while (node_a && node_b) {
-        if (node_a->data != node_b->data){
-            return false;
-        }
-        node_a = node_a->next;
-        node_b = node_b->next;
-    }
-    return true;
-}
 
-//bool operator!= (const Stack<T>&, const Stack <T>&)
+// Compares data_ of both stacks a and b using get_data()
+template <typename T>
+    bool operator==(const Stack<T>& a, const Stack<T>& b) {
+        return a.get_data() == b.get_data();
+    }
+
+// Returns the negation of operator==
 template <typename T>
 bool operator!=(const Stack<T>& a, const Stack<T>& b) {
     return !(a == b);
 }
 
-//bool operator<=(const Stack<T>& a, const Stack <T>& b)
+// Compares elements from top to bottom
+// If any element a is greater than the corresponding elemtn b, return false
+// Otherwise, returns true
 template <typename T>
-bool operator<=(const Stack<T>& a, const Stack<T>& b) {
-    auto *node_a = a.head, *node_b = b.head;
-    while (node_a && node_b) {
-        if (node_a->data > node_b->data){
-            return false;
+    bool operator<=(const Stack<T>& a, const Stack<T>& b) {
+        auto a_elem = a.get_data_rbegin();
+        auto b_elem = b.get_data_rbegin();
+        
+        while (a_elem != a.get_data_rend() && b_elem != b.get_data_rend()) {
+            if (*a_elem > *b_elem) {
+                return false;
+            }
+            ++a_elem;
+            ++b_elem;
         }
-        node_a = node_a->next;
-        node_b = node_b->next;
+        return a_elem == a.get_data_rend();
     }
-    return node_a == nullptr;
-}
-
 
 #endif

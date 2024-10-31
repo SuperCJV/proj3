@@ -27,33 +27,25 @@ namespace cop4530 {
                 void print(std::ostream& os, char ofc = ' ') const; //print elements of Stack to ostream os
                     // ofc is the separator between elements in the stack when they are printed out
                     // Note that print() prints elements in the opposite order of the Stack (that is, the oldest element should be printed first)
-
-            private:
-                struct Node {
-					T data;
-					Node *prev;
-					Node *next;
-
-					Node(const T & d = T{}, Node *p = nullptr, Node *n = nullptr) 
-						: data{d}, prev{p}, next{n} {}
-					Node(T && d, Node *p = nullptr, Node *n = nullptr)
-						: data{std::move(d)}, prev{p}, next{n} {}
-				};
-                int stackSize; // number of elements
-				Node *head; // head node
-
-                // Private helper function
-                void copyFrom(const Stack<T>& rhs); // Deep copy other stack to current one
+            
+                // Accessors for non-member operators to access data_ indirectly
+                const std::vector<T>& get_data() const { return data_; }
+                typename std::vector<T>::const_reverse_iterator get_data_rbegin() const { return data_.rbegin(); }
+                typename std::vector<T>::const_reverse_iterator get_data_rend() const { return data_.rend(); }
+           
+           private:
+                // Vector to implement stack nodes
+                std::vector<T> data_;
         };  
 
     template <typename T>
         std::ostream& operator<<(std::ostream& os, const Stack<T>& a);  // invokes the print() method to print the Stack<T>a in the specified ostream
     
     template <typename T>
-        bool operator== (const Stack<T>&, const Stack <T>&);    // returns true if the two compared Stacks have the same elements, in the same order
+        bool operator== (const Stack<T>&, const Stack <T>& rhs);    // returns true if the two compared Stacks have the same elements, in the same order
 
     template <typename T>
-        bool operator!= (const Stack<T>&, const Stack<T>&); // opposite of operator==()
+        bool operator!= (const Stack<T>&, const Stack<T>& rhs); // opposite of operator==()
 
     template <typename T>
         bool operator<= (const Stack<T>& a, const Stack <T>& b);    
