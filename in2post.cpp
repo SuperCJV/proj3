@@ -30,9 +30,9 @@ string infixToPostfix(const string& infix){
     Stack<string> operators;
     stringstream postfix_result;    // Included in <sstream> that allows input/output operations on strings
     istringstream tokens(infix);    // Included in <sstream> that allows strings to be read token by token
-    string token;
+    string token;   // Will pull single string from string line
 
-    while (tokens >> token){
+    while (tokens >> token){    // Reads the infix notation token by token until the end is reached
         if(isdigit(token[0]) || isalpha(token[0])) {    // Checks if token is an a letter or a number
             postfix_result << token << " "; // Operands are outputted into the result
         } else if(token == "("){  // RULE #1
@@ -76,19 +76,75 @@ string infixToPostfix(const string& infix){
 
 // Postfix expression evaluation
 double evaluatePostfix(const string& postfix){
-    Stack<double> operands;
-    istringstream tokens(postfix);
-    string token;
+    Stack<double> operands; // Will deal with floats and ints
+    istringstream tokens(postfix);  // Included in <sstream> that allows strings to be read token by token
+    string token;   // Will pull single string from string line
 
-    while (tokens >> token){
-        
+    while (tokens >> token){    // Reads the infix notation token by token until the end is reached
+        if(isdigit(token[0])){
+            operands.push(stod(token)); // Push numeric values into operand stack
+        } else if(isOperator(token)){
+            if(operands.size() < 2){    // If operator has fewer than 2 elements, report error
+                cerr << "Error: Insufficient operands.\n";
+                return 0;
+            }
+            
+            // When operator is read from input, remove two values from the operands stack
+            double right = operands.top(); 
+            operands.pop();
+            double left = operands.top();
+            operands.pop();
+
+            // Apply the operators to them and push the result into the operands stack
+            if(token == "+"){
+                operands.push(left + right);
+            }else if(token == "-"){
+                operands.push(left - right);
+            }else if(token == "*"){
+                operands.push(left * right);
+            }else if(token == "/"){
+                if(right == 0){
+                    cerr << "Error: Division by zero.\n";   // Check for division by 0
+                    return 0;
+                }
+                operands.push(left / right);
+            }
+        } else {
+            cerr << "Warning: Non-numeric operand \"" << token << "\" found.\n"; // If stack has more than one opearnd, report error
+            return 0;
+        }
     }
+    // If operand stack is empty, return 0
+    // Else, return the top value (the result)
+    return operands.empty() ? 0 : operands.top();
 }
 
 int main() {
-    string expression;
-    getline(cin, expression);
-    cout<<"String is: "<<expression<<endl;
+    string infix_input;
+    cout<< "Enter infix expression or 'exit' to quit: \n";
+    while(getline(cin, infix_input)){
+        if(infix_input == "exit"){  // Quit program if the input = "exit"
+            break;
+        }
+
+        string postfix = infixToPostfix(infix_input);
+        if(!postfix.empty()){
+            cout<< "Postfix" << postfix << "\n";
+
+            // "The program should only evaluate the computed postfix expressions that contain only numeric operands"
+            if (postfix.find_first_of("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ") == string::npos) {
+                // If no alphabetic characters are found, evaluate and print result
+                double result = evaluatePostfix(postfix);
+                cout << "Result: " << result << "\n";
+            } else {
+                // If postfix contains any alphabetic characters, it will print as-is
+                cout << "Result: " << postfix << "\n";
+            }
+
+        }
+
+        cout<< "Enter infix expression or 'exit' to quit: \n";  // Re-prompt the user
+    }
     
     return 0;
 }
