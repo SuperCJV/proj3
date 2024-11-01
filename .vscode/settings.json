@@ -66,6 +66,8 @@
         "ratio": "cpp",
         "stdexcept": "cpp",
         "type_traits": "cpp",
-        "typeinfo": "cpp"
+        "typeinfo": "cpp",
+        "__tree": "cpp",
+        "map": "cpp"
     }
 }
