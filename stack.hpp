@@ -99,6 +99,8 @@ template<typename T>
     {
         if(!empty()){
             return data_.back();
+        } else{
+            throw std::out_of_range("Stack is empty");
         }
     }
 
@@ -108,6 +110,8 @@ template<typename T>
     {
         if(!empty()){
             return data_.back();
+        } else{
+            throw std::out_of_range("Stack is empty");
         }
     }
 
