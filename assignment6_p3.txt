@@ -1,0 +1,18 @@
+(1)Analyzing the worst-cast time complexity of the member function clear() of stack
+
+My stack is implemented using a vector, a dynamic array. 
+std::vector<T,Allocator>::clear() erases all the elements from the container. 
+After this call, size() returns zero, however, it leaves the capacity of the vector unchanged. 
+That is, the number of elements that the stack has currently allocated space for stays the same.
+Nonetheless, the clear() function still has to go through each element in the stack in order to destruct it, 
+which takes O(n) time for n elements.
+Because of this, the worst-case time complexity is linear, O(n), as it depends on the number of elements in the stack. 
+
+(2) Analyzing the worst-case time complexity of the function you developed to evaluate a postfix arithmetic expression
+
+My implementation of a function that evaluates a Postfix expression loops over each token in the input string, which runs in O(n) time 
+because each token is processed exactly once. The push and pop operations on the operands stack run in O(1) time since each token results
+in either a push or a pop. The error handling statement 'cerr' is a constant time operation, O(1), as they may be executed in certain instances
+but do not affect the overall complexity since they only happen a limited number of times compared to n.
+Thus, the worst-case time complexity of the function is O(n), linear in time, as it is relative to the number of tokens. 
+
